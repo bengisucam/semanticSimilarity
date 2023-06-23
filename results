@@ -1,0 +1,38 @@
+
+
+Noun only Results:
+Found Similar Pairs (100-50%) Percentage:  77.08942139099942
+Found NonSimilar Pairs (50-0%)Percentage:  56.85431886549205
+Found Similar Pairs (100-75%) Percentage:  72.41770715096482
+Found Similar Pairs (75-50% )Percentage:  82.04819277108433
+Found NonSimilar Pairs (50-25%) Percentage:  42.38227146814405
+Found NonSimilar Pairs (25-0%) Percentage:  69.45337620578778
+
+
+Noun + Verb Results:
+Found Similar Pairs (100-50%) Percentage:  56.57510227936879
+Found NonSimilar Pairs (50-0%)Percentage:  71.93811774817361
+Found Similar Pairs (100-75%) Percentage:  50.7377979568672
+Found Similar Pairs (75-50% )Percentage:  62.7710843373494
+Found NonSimilar Pairs (50-25%) Percentage:  59.37211449676823
+Found NonSimilar Pairs (25-0%) Percentage:  82.87781350482315
+
+Noun + Verb + Adjective Results:
+Found Similar Pairs (100-50%) Percentage:  46.347165400350676
+Found NonSimilar Pairs (50-0%)Percentage:  81.99398366996132
+Found Similar Pairs (100-75%) Percentage:  19.466515323496026
+Found Similar Pairs (75-50% )Percentage:  74.87951807228916
+Found NonSimilar Pairs (50-25%) Percentage:  54.75530932594644
+Found NonSimilar Pairs (25-0%) Percentage:  105.70739549839229
+
+Sentence1                                                           Sentence2                                        Sim Score          Noun Only Sim Score         Noun+Verb Sim Score       Noun+Verb+Adj Sim Score
+A woman is dancing and singing with other women.                A woman is dancing and singing in the rain.             0.60                    0.73                        0.86                    0.56
+Two men are packing suitcases into the trunk of a car.          The men are putting suitcases into the car's trunk.     0.88                    1.00                        0.75                    0.50
+The woman picked up the kangaroo.                               A woman picks up a baby kangaroo.                       0.75                    1.00                        0.50                    0.33
+Two foxes are eating from a plate on a brick patio.             Foxes are eating from a plate.                          0.56                    0.51                        0.75                    0.50
+Two zebras are playing.                                         'Zebras are socializing.                                0.85                    1.00                        0.50                    0.34
+A group of people dance on a hill.                              A group of people are dancing.                          0.64                    0.67                        0.33                    0.22
+A car is moving through a road.                                 A car is driving down the road.                         0.80                    1.00                        0.50                    0.33
+The man is shooting an automatic rifle.                         A man is shooting a gun.                                0.76                    0.58                        0.79                    0.52
+A woman is cutting up a chicken.                                A woman is slicing meat.                                0.55                    0.54                        0.27                    0.18
+Butter is being put into a bowl.                                A man cutting butter into a mixing bowl.                0.85                    1.00                        0.50                    0.33
