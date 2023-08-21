@@ -3,6 +3,11 @@ from sklearn import preprocessing
 from nltk.corpus import wordnet as wn
 import nltk
 from nltk.corpus import stopwords
+import time
+import pandas as pd
+from scipy.stats import pearsonr
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -23,21 +28,21 @@ def remove_stop_words_and_punctuations(sentence):  # stop wordsleri silmeye gere
 
 
 def return_nouns(sentence):
-    #noun_tags = ['NN', 'NNS', 'NNP', 'NNPS']
+    # noun_tags = ['NN', 'NNS', 'NNP', 'NNPS']
     tokenized = nltk.word_tokenize(sentence)
     without_stop_words = remove_stop_words_and_punctuations(tokenized)
     return [word for (word, pos) in nltk.pos_tag(without_stop_words) if pos.startswith('N')]
 
 
 def return_verbs(sentence):
-    #verb_tags = ['VB', 'VBG', 'VBD', 'VBN', 'VBP', 'VBZ']
+    # verb_tags = ['VB', 'VBG', 'VBD', 'VBN', 'VBP', 'VBZ']
     tokenized = nltk.word_tokenize(sentence)
     without_stop_words = remove_stop_words_and_punctuations(tokenized)
     return [word for (word, pos) in nltk.pos_tag(without_stop_words) if pos.startswith('V')]
 
 
 def return_adjectives(sentence):
-    #verb_tags = ['VB', 'VBG', 'VBD', 'VBN', 'VBP', 'VBZ']
+    # verb_tags = ['VB', 'VBG', 'VBD', 'VBN', 'VBP', 'VBZ']
     tokenized = nltk.word_tokenize(sentence)
     without_stop_words = remove_stop_words_and_punctuations(tokenized)
     return [word for (word, pos) in nltk.pos_tag(without_stop_words) if pos.startswith('J')]
@@ -90,7 +95,8 @@ def calculate_similarity(first_word_list, second_word_list):
                 if len(wn_w2_list) == 0:
                     partial_scores.append(0)
                     continue
-                depth_node1, depth_node2, hypernym = find_lowest_hypernym_and_calculate_distance(wn_w1_list[0], wn_w2_list[0])
+                depth_node1, depth_node2, hypernym = find_lowest_hypernym_and_calculate_distance(wn_w1_list[0],
+                                                                                                 wn_w2_list[0])
                 similarity_n1_n2 = calculcate_similarity_score(depth_node1, depth_node2, hypernym, max_depth=20)
                 partial_scores.append(similarity_n1_n2)
 
@@ -100,9 +106,24 @@ def calculate_similarity(first_word_list, second_word_list):
     return sum(similarity_scores) / len(similarity_scores)
 
 
+def calculate_pearson_correlation(x_list, y_list):
+    # Apply the pearsonr()
+    corr, _ = pearsonr(x_list, y_list)
+    return corr
+
+
+def plot_mean_squared_error(df):
+    sns.regplot(data=df, x=df['our_normalized_similarity_score'], y=df['normalized_similarity_score'], scatter=False)
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
+    plt.show()
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
+
+    start_time = time.time()
     dataset = load_dataset("stsb_multi_mt", "en", split="train")
     sim_scores = dataset["similarity_score"]
 
@@ -122,7 +143,7 @@ if __name__ == '__main__':
         pair_similarity_verb = calculate_similarity(verb_list_first, verb_list_second)
         # average_pair_similarity = (pair_similarity_noun + pair_similarity_verb) / 2
         # pair_similarity_scores.append(average_pair_similarity)
-
+        #
         adj_list_first = return_adjectives(pairs["sentence1"])
         adj_list_second = return_adjectives(pairs["sentence2"])
         pair_similarity_adj = calculate_similarity(adj_list_first, adj_list_second)
@@ -130,27 +151,39 @@ if __name__ == '__main__':
         pair_similarity_scores.append(average_pair_similarity)
 
     dataset = dataset.add_column(name="our_normalized_similarity_score", column=pair_similarity_scores)
+    pearson_correlation = calculate_pearson_correlation(pair_similarity_scores,
+                                                        dataset["normalized_similarity_score"])
+    print('Pearsons correlation: %.3f' % pearson_correlation)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     # when the threshold is 50%
     similar_pairs = [pair for pair in dataset if pair["normalized_similarity_score"] >= 0.50]
     nonsimilar_pairs = [pair for pair in dataset if pair["normalized_similarity_score"] < 0.50]
     our_similar_pairs_count = len([pair for pair in similar_pairs if pair["our_normalized_similarity_score"] >= 0.50])
-    our_nonsimilar_pairs_count = len([pair for pair in nonsimilar_pairs if pair["our_normalized_similarity_score"] < 0.50])
-    print("Found Similar Pairs (100-50%) Percentage: ", our_similar_pairs_count*100 / len(similar_pairs))
-    print("Found NonSimilar Pairs (50-0%)Percentage: ", our_nonsimilar_pairs_count*100 / len(nonsimilar_pairs))
+    our_nonsimilar_pairs_count = len(
+        [pair for pair in nonsimilar_pairs if pair["our_normalized_similarity_score"] < 0.50])
+    print("Found Similar Pairs (100-50%) Percentage: ", our_similar_pairs_count * 100 / len(similar_pairs))
+    print("Found NonSimilar Pairs (50-0%)Percentage: ", our_nonsimilar_pairs_count * 100 / len(nonsimilar_pairs))
 
     # when the threshold is 25%
     similar_pairs_count_1 = len([pair for pair in dataset if pair["normalized_similarity_score"] >= 0.75])
-    similar_pairs_count_2 = len([pair for pair in dataset if pair["normalized_similarity_score"] >= 0.50 and pair["normalized_similarity_score"] < 0.75])
-    nonsimilar_pairs_count_1 = len([pair for pair in dataset if pair["normalized_similarity_score"] < 0.50 and pair["normalized_similarity_score"] >= 0.25])
+    similar_pairs_count_2 = len([pair for pair in dataset if pair["normalized_similarity_score"] >= 0.50 and pair[
+        "normalized_similarity_score"] < 0.75])
+    nonsimilar_pairs_count_1 = len([pair for pair in dataset if pair["normalized_similarity_score"] < 0.50 and pair[
+        "normalized_similarity_score"] >= 0.25])
     nonsimilar_pairs_count_2 = len([pair for pair in dataset if pair["normalized_similarity_score"] < 0.25])
     our_similar_pairs_count_1 = len([pair for pair in similar_pairs if pair["our_normalized_similarity_score"] >= 0.75])
-    our_similar_pairs_count_2 = len([pair for pair in similar_pairs if pair["our_normalized_similarity_score"] >= 0.50 and pair["our_normalized_similarity_score"] < 0.75])
-    our_nonsimilar_pairs_count_1 = len([pair for pair in nonsimilar_pairs if pair["our_normalized_similarity_score"] < 0.50 and pair["our_normalized_similarity_score"] >= 0.25])
-    our_nonsimilar_pairs_count_2 = len([pair for pair in nonsimilar_pairs if pair["our_normalized_similarity_score"] < 0.25])
+    our_similar_pairs_count_2 = len([pair for pair in similar_pairs if
+                                     pair["our_normalized_similarity_score"] >= 0.50 and pair[
+                                         "our_normalized_similarity_score"] < 0.75])
+    our_nonsimilar_pairs_count_1 = len([pair for pair in nonsimilar_pairs if
+                                        pair["our_normalized_similarity_score"] < 0.50 and pair[
+                                            "our_normalized_similarity_score"] >= 0.25])
+    our_nonsimilar_pairs_count_2 = len(
+        [pair for pair in nonsimilar_pairs if pair["our_normalized_similarity_score"] < 0.25])
     print("Found Similar Pairs (100-75%) Percentage: ", our_similar_pairs_count_1 * 100 / similar_pairs_count_1)
     print("Found Similar Pairs (75-50% )Percentage: ", our_similar_pairs_count_2 * 100 / similar_pairs_count_2)
     print("Found NonSimilar Pairs (50-25%) Percentage: ", our_nonsimilar_pairs_count_1 * 100 / nonsimilar_pairs_count_1)
     print("Found NonSimilar Pairs (25-0%) Percentage: ", our_nonsimilar_pairs_count_2 * 100 / nonsimilar_pairs_count_2)
 
-
+    plot_mean_squared_error(dataset)
